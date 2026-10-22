@@ -466,12 +466,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _seed_ready_check: { Args: never; Returns: string }
+      claim_demo_participant: {
+        Args: { _character_id: string; _raid_id: string; _seed_key: string }
+        Returns: undefined
+      }
       is_guild_leader: { Args: { _guild_id: string }; Returns: boolean }
       is_guild_member: { Args: { _guild_id: string }; Returns: boolean }
       join_guild_by_invite: {
         Args: { _display_name: string; _invite_code: string }
         Returns: string
       }
+      reset_ready_check_demo: { Args: never; Returns: string }
     }
     Enums: {
       alert_status: "recorded" | "retrieved" | "delivered"

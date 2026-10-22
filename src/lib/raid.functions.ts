@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { computeRoleGaps, flushGrokBotNotifications } from "./raid-core.server";
 
 const raidRole = z.enum(["tank", "healer", "damage"]);
-const signupStatus = z.enum(["confirmed", "tentative", "unavailable", "standby"]);
+const signupStatus = z.enum(["confirmed", "tentative", "unavailable", "standby", "no_response"]);
 
 // ---------- Guilds & membership ----------
 
@@ -162,8 +162,8 @@ export const getRaidDetail = createServerFn({ method: "POST" })
     const memberName = new Map((members ?? []).map((m) => [m.user_id, m.display_name]));
     const roster = (signups ?? []).map((s) => ({
       ...s,
-      display_name: memberName.get(s.user_id) ?? "Unknown",
-      is_mine: s.user_id === context.userId,
+      display_name: s.player_name ?? (s.user_id ? memberName.get(s.user_id) : undefined) ?? "Unknown",
+      is_mine: !!s.user_id && s.user_id === context.userId,
     }));
 
     return {
@@ -407,4 +407,32 @@ export const decideAction = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     return row;
+  });
+
+// ---------- Demo scenario: The Ready Check ----------
+
+export const resetReadyCheckDemo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Silent by design: the DB function suppresses alerts and no webhook is sent.
+    const { data, error } = await context.supabase.rpc("reset_ready_check_demo");
+    if (error) throw new Error(error.message);
+    return { raidId: data as string };
+  });
+
+export const claimDemoParticipant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({ raidId: z.string().uuid(), seedKey: z.string().min(1).max(40), characterId: z.string().uuid() })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("claim_demo_participant", {
+      _raid_id: data.raidId,
+      _seed_key: data.seedKey,
+      _character_id: data.characterId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
