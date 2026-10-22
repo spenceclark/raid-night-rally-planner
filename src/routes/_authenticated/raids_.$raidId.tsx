@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cancelSignup, getRaidDetail, upsertSignup } from "@/lib/raid.functions";
 
-export const Route = createFileRoute("/_authenticated/raids/$raidId")({
+export const Route = createFileRoute("/_authenticated/raids_/$raidId")({
   head: () => ({
     meta: [
       { title: "Raid detail — Raid Night Planner" },
