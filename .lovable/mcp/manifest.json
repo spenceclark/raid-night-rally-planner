@@ -1,0 +1,330 @@
+{
+  "version": 1,
+  "sdk_version": "3.2.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://wyvswhhqqobpiomzghen.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "raid-night-planner",
+      "version": "0.1.0",
+      "title": "Raid Night Planner"
+    },
+    "tools": [
+      {
+        "name": "list_raids",
+        "title": "List raids",
+        "description": "List upcoming raids for a guild the caller belongs to.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "guild_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Guild to list raids for. Caller must be a member."
+            }
+          },
+          "required": [
+            "guild_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_raid",
+        "title": "Create raid",
+        "description": "Create a raid in a guild the caller leads. Pass an idempotency_key to make retries safe: a repeated call with the same key returns the existing raid instead of creating a duplicate.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "guild_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Guild to create the raid in. Caller must be a leader."
+            },
+            "title": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120
+            },
+            "content": {
+              "default": "",
+              "description": "Planned content, e.g. 'Heroic clear, bosses 1-8'.",
+              "type": "string",
+              "maxLength": 500
+            },
+            "starts_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "ISO 8601 start time."
+            },
+            "ends_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "ISO 8601 end time."
+            },
+            "time_zone": {
+              "default": "UTC",
+              "description": "Display time zone, e.g. 'Europe/London'.",
+              "type": "string",
+              "maxLength": 60
+            },
+            "notes": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "req_tanks": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 40
+            },
+            "req_healers": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 40
+            },
+            "req_damage": {
+              "default": 6,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 80
+            },
+            "idempotency_key": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Unique key for this creation; retries with the same key are safe."
+            }
+          },
+          "required": [
+            "guild_id",
+            "title",
+            "starts_at",
+            "ends_at",
+            "idempotency_key"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_raid_status",
+        "title": "Get raid status",
+        "description": "Get a raid's confirmed roster counts, role gaps and standby members. Only confirmed signups count toward requirements.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "raid_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Raid to inspect. Caller must be a member of its guild."
+            }
+          },
+          "required": [
+            "raid_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_raid",
+        "title": "Update raid",
+        "description": "Update a raid's schedule, notes, status or role requirements. Caller must lead the raid's guild.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "raid_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120
+            },
+            "content": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "starts_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "ends_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "time_zone": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "req_tanks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 40
+            },
+            "req_healers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 40
+            },
+            "req_damage": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 80
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "planned",
+                "cancelled",
+                "completed"
+              ]
+            }
+          },
+          "required": [
+            "raid_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pending_alerts",
+        "title": "Get pending alerts",
+        "description": "Poll the durable alert queue for a guild the caller leads. Returns alerts in 'recorded' status and marks them 'retrieved' — retrieval is not delivery to the raid leader. Acknowledge handled alerts with acknowledge_alert.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "guild_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Guild to poll alerts for. Caller must be a leader."
+            }
+          },
+          "required": [
+            "guild_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "acknowledge_alert",
+        "title": "Acknowledge alert",
+        "description": "Mark an alert as delivered after the bot has actually delivered the message to the raid leader. Only call this after real delivery — it is the durable record that the leader was notified.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "alert_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Alert to acknowledge. Caller must lead its guild."
+            }
+          },
+          "required": [
+            "alert_id"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "record_leader_decision",
+        "title": "Record leader decision",
+        "description": "Record the raid leader's decision on a proposed action (approve or reject). This records the decision only — approving a draft does not mark any message as sent.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "proposed_action_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The proposed action to decide on."
+            },
+            "decision": {
+              "type": "string",
+              "enum": [
+                "approved",
+                "rejected"
+              ]
+            }
+          },
+          "required": [
+            "proposed_action_id",
+            "decision"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
