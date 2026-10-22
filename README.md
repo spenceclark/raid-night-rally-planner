@@ -38,8 +38,8 @@ Open source under the [MIT licence](LICENSE).
    - `GROKBOT_WEBHOOK_TOKEN` — bearer token for that webhook.
 4. **Run** — `bun install && bun dev`.
 
-Credentials and private data must stay out of the repository: secrets are
-stored in the hosting environment, and `.env` files are not committed.
+Credentials and private data must stay out of the repository: secrets are set
+in the hosting environment, and `.env.example` documents the local variables.
 
 ## MCP server (for Grok Bot)
 
