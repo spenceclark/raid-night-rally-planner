@@ -38,7 +38,9 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 });
 
 function Consent() {
-  const details = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const clientName =
+    loaderData && "client" in loaderData ? loaderData.client?.name : undefined;
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,7 @@ function Consent() {
       setError(error.message);
       return;
     }
-    const target = data?.redirect_url ?? data?.redirect_to;
+    const target = data && "redirect_url" in data ? data.redirect_url : undefined;
     if (!target) {
       setBusy(false);
       setError("No redirect returned by the authorization server.");
@@ -67,10 +69,10 @@ function Consent() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="font-display text-2xl text-primary">
-            Connect {details?.client?.name ?? "an app"}
+            Connect {clientName ?? "an app"}
           </CardTitle>
           <CardDescription>
-            This lets {details?.client?.name ?? "the client"} use Raid Night Planner as you —
+            This lets {clientName ?? "the client"} use Raid Night Planner as you —
             reading raids and alerts for guilds you belong to, and acting only where you are a
             leader.
           </CardDescription>
