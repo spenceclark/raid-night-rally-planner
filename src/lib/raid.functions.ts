@@ -294,7 +294,18 @@ export const updateRaid = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: Partial<{
+      title: string;
+      content: string;
+      starts_at: string;
+      ends_at: string;
+      time_zone: string;
+      notes: string;
+      req_tanks: number;
+      req_healers: number;
+      req_damage: number;
+      status: string;
+    }> = {};
     if (data.title !== undefined) patch.title = data.title;
     if (data.content !== undefined) patch.content = data.content;
     if (data.startsAt !== undefined) patch.starts_at = data.startsAt;

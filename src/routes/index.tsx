@@ -47,7 +47,7 @@ function Index() {
       </p>
       <div className="mt-10 flex gap-4">
         <Button asChild size="lg">
-          <Link to="/auth">Enter the guild hall</Link>
+          <Link to="/auth" search={{ next: undefined }}>Enter the guild hall</Link>
         </Button>
       </div>
     </div>
