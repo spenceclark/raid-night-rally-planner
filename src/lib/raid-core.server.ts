@@ -3,7 +3,7 @@
 // Server-only: never import from components.
 
 export type RaidRole = "tank" | "healer" | "damage";
-export type SignupStatus = "confirmed" | "tentative" | "unavailable" | "standby";
+export type SignupStatus = "confirmed" | "tentative" | "unavailable" | "standby" | "no_response";
 
 export interface RaidRequirements {
   req_tanks: number;
