@@ -19,7 +19,7 @@ import { Route as AuthenticatedJoinRouteImport } from './routes/_authenticated/j
 import { Route as AuthenticatedLeaderRouteImport } from './routes/_authenticated/leader'
 import { Route as AuthenticatedRaidsRouteImport } from './routes/_authenticated/raids'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as AuthenticatedRaidsRaidIdRouteImport } from './routes/_authenticated/raids.$raidId'
+import { Route as AuthenticatedRaidsRaidIdRouteImport } from './routes/_authenticated/raids_.$raidId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -73,9 +73,9 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
 } as any)
 const AuthenticatedRaidsRaidIdRoute =
   AuthenticatedRaidsRaidIdRouteImport.update({
-    id: '/$raidId',
-    path: '/$raidId',
-    getParentRoute: () => AuthenticatedRaidsRoute,
+    id: '/raids_/$raidId',
+    path: '/raids/$raidId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -86,7 +86,7 @@ export interface FileRoutesByFullPath {
   '/characters': typeof AuthenticatedCharactersRoute
   '/join': typeof AuthenticatedJoinRoute
   '/leader': typeof AuthenticatedLeaderRoute
-  '/raids': typeof AuthenticatedRaidsRouteWithChildren
+  '/raids': typeof AuthenticatedRaidsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
 }
@@ -98,7 +98,7 @@ export interface FileRoutesByTo {
   '/characters': typeof AuthenticatedCharactersRoute
   '/join': typeof AuthenticatedJoinRoute
   '/leader': typeof AuthenticatedLeaderRoute
-  '/raids': typeof AuthenticatedRaidsRouteWithChildren
+  '/raids': typeof AuthenticatedRaidsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
 }
@@ -112,9 +112,9 @@ export interface FileRoutesById {
   '/_authenticated/characters': typeof AuthenticatedCharactersRoute
   '/_authenticated/join': typeof AuthenticatedJoinRoute
   '/_authenticated/leader': typeof AuthenticatedLeaderRoute
-  '/_authenticated/raids': typeof AuthenticatedRaidsRouteWithChildren
+  '/_authenticated/raids': typeof AuthenticatedRaidsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/_authenticated/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
+  '/_authenticated/raids_/$raidId': typeof AuthenticatedRaidsRaidIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -153,7 +153,7 @@ export interface FileRouteTypes {
     | '/_authenticated/leader'
     | '/_authenticated/raids'
     | '/.lovable/oauth/consent'
-    | '/_authenticated/raids/$raidId'
+    | '/_authenticated/raids_/$raidId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,39 +237,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/raids/$raidId': {
-      id: '/_authenticated/raids/$raidId'
-      path: '/$raidId'
+    '/_authenticated/raids_/$raidId': {
+      id: '/_authenticated/raids_/$raidId'
+      path: '/raids/$raidId'
       fullPath: '/raids/$raidId'
       preLoaderRoute: typeof AuthenticatedRaidsRaidIdRouteImport
-      parentRoute: typeof AuthenticatedRaidsRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedRaidsRouteChildren {
-  AuthenticatedRaidsRaidIdRoute: typeof AuthenticatedRaidsRaidIdRoute
-}
-
-const AuthenticatedRaidsRouteChildren: AuthenticatedRaidsRouteChildren = {
-  AuthenticatedRaidsRaidIdRoute: AuthenticatedRaidsRaidIdRoute,
-}
-
-const AuthenticatedRaidsRouteWithChildren =
-  AuthenticatedRaidsRoute._addFileChildren(AuthenticatedRaidsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCharactersRoute: typeof AuthenticatedCharactersRoute
   AuthenticatedJoinRoute: typeof AuthenticatedJoinRoute
   AuthenticatedLeaderRoute: typeof AuthenticatedLeaderRoute
-  AuthenticatedRaidsRoute: typeof AuthenticatedRaidsRouteWithChildren
+  AuthenticatedRaidsRoute: typeof AuthenticatedRaidsRoute
+  AuthenticatedRaidsRaidIdRoute: typeof AuthenticatedRaidsRaidIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCharactersRoute: AuthenticatedCharactersRoute,
   AuthenticatedJoinRoute: AuthenticatedJoinRoute,
   AuthenticatedLeaderRoute: AuthenticatedLeaderRoute,
-  AuthenticatedRaidsRoute: AuthenticatedRaidsRouteWithChildren,
+  AuthenticatedRaidsRoute: AuthenticatedRaidsRoute,
+  AuthenticatedRaidsRaidIdRoute: AuthenticatedRaidsRaidIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
