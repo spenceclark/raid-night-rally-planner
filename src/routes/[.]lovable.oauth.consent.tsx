@@ -40,7 +40,9 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 function Consent() {
   const loaderData = Route.useLoaderData();
   const clientName =
-    loaderData && "client" in loaderData ? loaderData.client?.name : undefined;
+    loaderData && "client" in loaderData
+      ? (loaderData.client as { name?: string } | undefined)?.name
+      : undefined;
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

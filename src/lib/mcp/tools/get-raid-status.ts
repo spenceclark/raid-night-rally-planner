@@ -35,7 +35,13 @@ export default defineTool({
       role: "tank" | "healer" | "damage";
       status: "confirmed" | "tentative" | "unavailable" | "standby";
     }>;
-    const gaps = computeRoleGaps(raid, rows);
+    const computed = computeRoleGaps(raid, rows);
+    // Anonymous object literals: named interfaces fail the MCP JSON type.
+    const gaps = {
+      tank: { ...computed.tank },
+      healer: { ...computed.healer },
+      damage: { ...computed.damage },
+    };
     const standby = rows.filter((s) => s.status === "standby").length;
     const tentative = rows.filter((s) => s.status === "tentative").length;
 
