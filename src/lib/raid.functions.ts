@@ -2,7 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { computeRoleGaps, flushGrokBotNotifications } from "./raid-core.server";
+import {
+  computeRoleGaps,
+  createProposedAction,
+  decideProposedAction,
+  flushGrokBotNotifications,
+} from "./raid-core.server";
 
 const raidRole = z.enum(["tank", "healer", "damage"]);
 const signupStatus = z.enum(["confirmed", "tentative", "unavailable", "standby", "no_response"]);
@@ -370,18 +375,8 @@ export const proposeAction = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
-      .from("proposed_actions")
-      .insert({
-        guild_id: data.guildId,
-        raid_id: data.raidId,
-        alert_id: data.alertId,
-        proposal: data.proposal,
-      })
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
+    const { action } = await createProposedAction(context.supabase, data);
+    return action;
   });
 
 export const decideAction = createServerFn({ method: "POST" })
@@ -394,19 +389,12 @@ export const decideAction = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     // Approving a draft records the decision only — nothing is marked as sent
     // unless a real messaging integration confirms delivery.
-    const { data: row, error } = await context.supabase
-      .from("proposed_actions")
-      .update({
-        status: data.decision,
-        decided_by: context.userId,
-        decided_at: new Date().toISOString(),
-      })
-      .eq("id", data.actionId)
-      .eq("status", "pending")
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
+    const { action } = await decideProposedAction(context.supabase, {
+      actionId: data.actionId,
+      decision: data.decision,
+      userId: context.userId,
+    });
+    return action;
   });
 
 // ---------- Demo scenario: The Ready Check ----------

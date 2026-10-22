@@ -8,7 +8,7 @@ export default defineTool({
   name: "get_raid_status",
   title: "Get raid status",
   description:
-    "Get a raid's confirmed roster counts, role gaps and standby members. Only confirmed signups count toward requirements.",
+    "Get a raid's confirmed roster counts, role gaps, standby members and proposed actions (with their ids, for record_leader_decision). Only confirmed signups count toward requirements.",
   inputSchema: {
     raid_id: z.string().uuid().describe("Raid to inspect. Caller must be a member of its guild."),
   },
@@ -25,16 +25,23 @@ export default defineTool({
       .single();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
 
-    const [{ data: signups, error: sErr }, { data: members }] = await Promise.all([
-      supabase
-        .from("signups")
-        .select(
-          "user_id, role, status, note, player_name, character_name, class_name, availability_start, availability_end, availability_note, contact_ok, switch_offers, switch_note, characters(name, class_name)",
-        )
-        .eq("raid_id", raid_id),
-      supabase.from("memberships").select("user_id, display_name").eq("guild_id", raid.guild_id),
-    ]);
+    const [{ data: signups, error: sErr }, { data: members }, { data: actions, error: aErr }] =
+      await Promise.all([
+        supabase
+          .from("signups")
+          .select(
+            "user_id, role, status, note, player_name, character_name, class_name, availability_start, availability_end, availability_note, contact_ok, switch_offers, switch_note, characters(name, class_name)",
+          )
+          .eq("raid_id", raid_id),
+        supabase.from("memberships").select("user_id, display_name").eq("guild_id", raid.guild_id),
+        supabase
+          .from("proposed_actions")
+          .select("id, alert_id, proposal, status, decided_at, created_at")
+          .eq("raid_id", raid_id)
+          .order("created_at"),
+      ]);
     if (sErr) return { content: [{ type: "text", text: sErr.message }], isError: true };
+    if (aErr) return { content: [{ type: "text", text: aErr.message }], isError: true };
 
     const memberName = new Map((members ?? []).map((m) => [m.user_id, m.display_name]));
     const rows = signups ?? [];
@@ -89,6 +96,15 @@ export default defineTool({
       policy:
         "Only confirmed signups count. Standby players must accept a promotion; nothing is auto-promoted. A role switch requires the player's explicit offer, and switching a confirmed player away from a role opens a vacancy in that role. Class capability alone is not permission to switch.",
       participants,
+      // Decisions are recorded against these ids; "approved" never means sent.
+      proposed_actions: (actions ?? []).map((a) => ({
+        proposed_action_id: a.id,
+        alert_id: a.alert_id,
+        proposal: a.proposal,
+        status: a.status,
+        decided_at: a.decided_at,
+        created_at: a.created_at,
+      })),
     };
     return {
       content: [{ type: "text", text: JSON.stringify(status) }],

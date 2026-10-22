@@ -36,11 +36,11 @@ Supabase OAuth server is enabled, the endpoint cannot issue tokens.
 | ------------------------ | ----------- | ---------------------------------------------------------------- |
 | `list_raids`             | member      | List upcoming raids for a guild.                                 |
 | `create_raid`            | leader      | Create a raid. Idempotent via `idempotency_key`.                 |
-| `get_raid_status`        | member      | Confirmed counts, role gaps, standby/tentative counts.           |
+| `get_raid_status`        | member      | Confirmed counts, role gaps, standby/tentative counts, proposed actions with ids. |
 | `update_raid`            | leader      | Update schedule, notes, status or role requirements.             |
 | `get_pending_alerts`     | leader      | Poll the durable alert queue; marks polled alerts `retrieved`.   |
 | `acknowledge_alert`      | leader      | Mark an alert `delivered` after real delivery to the leader.     |
-| `record_leader_decision` | leader      | Approve/reject a proposed action. Records the decision only.     |
+| `record_leader_decision` | leader      | Approve/reject a proposed action (by id, or propose + decide for an alert). Records the decision only. |
 
 ## Example calls
 
@@ -75,6 +75,40 @@ Poll alerts:
   "params": { "name": "get_pending_alerts", "arguments": { "guild_id": "…" } }
 }
 ```
+
+Record the leader's decision on an alert in one call (proposes the action and
+decides it; retrying returns the same proposal and decision, never a
+duplicate):
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "record_leader_decision",
+    "arguments": {
+      "alert_id": "…",
+      "proposal": "Ask Sam to take the open healer spot. Sam must accept before being promoted.",
+      "decision": "approved"
+    }
+  }
+}
+```
+
+Or decide a proposal that already exists — `get_raid_status` lists each one
+under `proposed_actions` with its `proposed_action_id`:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "record_leader_decision",
+    "arguments": { "proposed_action_id": "…", "decision": "approved" }
+  }
+}
+```
+
+Approving records the decision only: nothing is messaged and no reserve is
+promoted.
 
 ## Proactive notification
 

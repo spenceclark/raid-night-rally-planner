@@ -134,7 +134,7 @@
       {
         "name": "get_raid_status",
         "title": "Get raid status",
-        "description": "Get a raid's confirmed roster counts, role gaps and standby members. Only confirmed signups count toward requirements.",
+        "description": "Get a raid's confirmed roster counts, role gaps, standby members and proposed actions (with their ids, for record_leader_decision). Only confirmed signups count toward requirements.",
         "annotations": {
           "readOnlyHint": true,
           "openWorldHint": false
@@ -292,7 +292,7 @@
       {
         "name": "record_leader_decision",
         "title": "Record leader decision",
-        "description": "Record the raid leader's decision on a proposed action (approve or reject). This records the decision only — approving a draft does not mark any message as sent.",
+        "description": "Record the raid leader's decision (approve or reject) on a proposed action. Pass proposed_action_id for an existing proposal (ids are listed in get_raid_status), or alert_id plus proposal to propose the next action for that alert and decide it in one call. Retrying the same call never duplicates the proposal or the decision. This records the decision only — approving never marks any message as sent.",
         "annotations": {
           "readOnlyHint": false,
           "destructiveHint": false,
@@ -304,10 +304,22 @@
           "type": "object",
           "properties": {
             "proposed_action_id": {
+              "description": "Existing proposed action to decide on. Omit when passing alert_id + proposal.",
               "type": "string",
               "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-              "description": "The proposed action to decide on."
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "alert_id": {
+              "description": "Alert the decision responds to, when proposing a new action in the same call.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "proposal": {
+              "description": "The proposed next action, e.g. 'Ask Sam to take the open healer spot'. Required with alert_id.",
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 500
             },
             "decision": {
               "type": "string",
@@ -318,7 +330,6 @@
             }
           },
           "required": [
-            "proposed_action_id",
             "decision"
           ],
           "additionalProperties": false
