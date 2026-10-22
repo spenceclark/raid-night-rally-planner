@@ -150,10 +150,53 @@ export type Database = {
           },
         ]
       }
+      demo_seed_mappings: {
+        Row: {
+          character_id: string | null
+          created_at: string
+          id: string
+          raid_id: string
+          seed_key: string
+          user_id: string
+        }
+        Insert: {
+          character_id?: string | null
+          created_at?: string
+          id?: string
+          raid_id: string
+          seed_key: string
+          user_id: string
+        }
+        Update: {
+          character_id?: string | null
+          created_at?: string
+          id?: string
+          raid_id?: string
+          seed_key?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_seed_mappings_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_seed_mappings_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "raids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guilds: {
         Row: {
           created_at: string
           created_by: string | null
+          demo_scenario: string | null
           id: string
           invite_code: string
           is_demo: boolean
@@ -162,6 +205,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          demo_scenario?: string | null
           id?: string
           invite_code?: string
           is_demo?: boolean
@@ -170,6 +214,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          demo_scenario?: string | null
           id?: string
           invite_code?: string
           is_demo?: boolean
@@ -279,6 +324,7 @@ export type Database = {
           guild_id: string
           id: string
           idempotency_key: string | null
+          invites_at: string | null
           notes: string
           req_damage: number
           req_healers: number
@@ -296,6 +342,7 @@ export type Database = {
           guild_id: string
           id?: string
           idempotency_key?: string | null
+          invites_at?: string | null
           notes?: string
           req_damage?: number
           req_healers?: number
@@ -313,6 +360,7 @@ export type Database = {
           guild_id?: string
           id?: string
           idempotency_key?: string | null
+          invites_at?: string | null
           notes?: string
           req_damage?: number
           req_healers?: number
@@ -334,37 +382,67 @@ export type Database = {
       }
       signups: {
         Row: {
+          availability_end: string | null
+          availability_note: string
+          availability_start: string | null
           character_id: string | null
+          character_name: string | null
+          class_name: string | null
+          contact_ok: boolean | null
           created_at: string
           id: string
           note: string
+          player_name: string | null
           raid_id: string
           role: Database["public"]["Enums"]["raid_role"]
+          seed_key: string | null
           status: Database["public"]["Enums"]["signup_status"]
+          switch_note: string
+          switch_offers: Database["public"]["Enums"]["raid_role"][]
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          availability_end?: string | null
+          availability_note?: string
+          availability_start?: string | null
           character_id?: string | null
+          character_name?: string | null
+          class_name?: string | null
+          contact_ok?: boolean | null
           created_at?: string
           id?: string
           note?: string
+          player_name?: string | null
           raid_id: string
           role: Database["public"]["Enums"]["raid_role"]
+          seed_key?: string | null
           status?: Database["public"]["Enums"]["signup_status"]
+          switch_note?: string
+          switch_offers?: Database["public"]["Enums"]["raid_role"][]
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          availability_end?: string | null
+          availability_note?: string
+          availability_start?: string | null
           character_id?: string | null
+          character_name?: string | null
+          class_name?: string | null
+          contact_ok?: boolean | null
           created_at?: string
           id?: string
           note?: string
+          player_name?: string | null
           raid_id?: string
           role?: Database["public"]["Enums"]["raid_role"]
+          seed_key?: string | null
           status?: Database["public"]["Enums"]["signup_status"]
+          switch_note?: string
+          switch_offers?: Database["public"]["Enums"]["raid_role"][]
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -399,7 +477,12 @@ export type Database = {
       alert_status: "recorded" | "retrieved" | "delivered"
       guild_role: "leader" | "member"
       raid_role: "tank" | "healer" | "damage"
-      signup_status: "confirmed" | "tentative" | "unavailable" | "standby"
+      signup_status:
+        | "confirmed"
+        | "tentative"
+        | "unavailable"
+        | "standby"
+        | "no_response"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -530,7 +613,13 @@ export const Constants = {
       alert_status: ["recorded", "retrieved", "delivered"],
       guild_role: ["leader", "member"],
       raid_role: ["tank", "healer", "damage"],
-      signup_status: ["confirmed", "tentative", "unavailable", "standby"],
+      signup_status: [
+        "confirmed",
+        "tentative",
+        "unavailable",
+        "standby",
+        "no_response",
+      ],
     },
   },
 } as const
