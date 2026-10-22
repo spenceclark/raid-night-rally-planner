@@ -1,24 +1,55 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Raid Night Planner — guild raid coordination" },
+      {
+        name: "description",
+        content:
+          "Coordinate guild raids: signups, role gaps, standby replacements and leader alerts — with a bot-friendly MCP interface.",
+      },
+      { property: "og:title", content: "Raid Night Planner — guild raid coordination" },
+      {
+        property: "og:description",
+        content:
+          "Coordinate guild raids: signups, role gaps, standby replacements and leader alerts — with a bot-friendly MCP interface.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/raids" });
+    });
+  }, [navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+      <p className="font-display text-sm tracking-[0.3em] text-primary uppercase">Raid Night</p>
+      <h1 className="mt-4 max-w-2xl font-display text-5xl font-bold text-foreground">
+        Autopilot
+      </h1>
+      <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+        Coordinate your guild's raids: signups, role gaps, standby replacements and
+        leader alerts — with Grok Bot managing raids through the MCP interface.
+      </p>
+      <div className="mt-10 flex gap-4">
+        <Button asChild size="lg">
+          <Link to="/auth" search={{ next: undefined }}>Enter the guild hall</Link>
+        </Button>
+      </div>
     </div>
   );
 }

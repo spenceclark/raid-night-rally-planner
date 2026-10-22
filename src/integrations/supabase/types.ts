@@ -25,6 +25,7 @@ export type Database = {
           raid_id: string
           signup_id: string | null
           status: Database["public"]["Enums"]["alert_status"]
+          webhook_notified_at: string | null
         }
         Insert: {
           created_at?: string
@@ -36,6 +37,7 @@ export type Database = {
           raid_id: string
           signup_id?: string | null
           status?: Database["public"]["Enums"]["alert_status"]
+          webhook_notified_at?: string | null
         }
         Update: {
           created_at?: string
@@ -47,6 +49,7 @@ export type Database = {
           raid_id?: string
           signup_id?: string | null
           status?: Database["public"]["Enums"]["alert_status"]
+          webhook_notified_at?: string | null
         }
         Relationships: [
           {
@@ -387,6 +390,10 @@ export type Database = {
     Functions: {
       is_guild_leader: { Args: { _guild_id: string }; Returns: boolean }
       is_guild_member: { Args: { _guild_id: string }; Returns: boolean }
+      join_guild_by_invite: {
+        Args: { _display_name: string; _invite_code: string }
+        Returns: string
+      }
     }
     Enums: {
       alert_status: "recorded" | "retrieved" | "delivered"
