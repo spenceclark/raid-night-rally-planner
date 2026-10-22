@@ -18,3 +18,4 @@
 - `supabaseAdmin` is used only for webhook bookkeeping (marking `webhook_notified_at`, audit log) after the triggering user action was already authorized; all other access goes through RLS as the caller.
 - Nested route files under a leaf route need the trailing-underscore form (e.g. `raids_.$raidId.tsx`) because leaf routes render no `<Outlet />`.
 - The MCP server lives in `src/lib/mcp/` with OAuth via Supabase issuer; generated routes (`src/routes/mcp.ts`, well-known metadata) come from the Vite plugin — never hand-edit them.
+- The Ready Check demo is seeded by the DB function `_seed_ready_check()` (rows tagged by `signups.seed_key`, real-account links in `demo_seed_mappings`); reset runs through `reset_ready_check_demo()` with the `raidnight.seeding` flag so the cancel trigger stays silent and no webhook fires.
