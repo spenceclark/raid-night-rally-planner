@@ -20,7 +20,6 @@ import { Route as AuthenticatedLeaderRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedRaidsRouteImport } from './routes/_authenticated/raids'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedRaidsRaidIdRouteImport } from './routes/_authenticated/raids.$raidId'
-import { Route as ApiPublicDevDemoUserRouteImport } from './routes/api/public/dev-demo-user'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -78,11 +77,6 @@ const AuthenticatedRaidsRaidIdRoute =
     path: '/$raidId',
     getParentRoute: () => AuthenticatedRaidsRoute,
   } as any)
-const ApiPublicDevDemoUserRoute = ApiPublicDevDemoUserRouteImport.update({
-  id: '/api/public/dev-demo-user',
-  path: '/api/public/dev-demo-user',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,7 +89,6 @@ export interface FileRoutesByFullPath {
   '/raids': typeof AuthenticatedRaidsRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
-  '/api/public/dev-demo-user': typeof ApiPublicDevDemoUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -108,7 +101,6 @@ export interface FileRoutesByTo {
   '/raids': typeof AuthenticatedRaidsRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
-  '/api/public/dev-demo-user': typeof ApiPublicDevDemoUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,7 +115,6 @@ export interface FileRoutesById {
   '/_authenticated/raids': typeof AuthenticatedRaidsRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/raids/$raidId': typeof AuthenticatedRaidsRaidIdRoute
-  '/api/public/dev-demo-user': typeof ApiPublicDevDemoUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,7 +129,6 @@ export interface FileRouteTypes {
     | '/raids'
     | '/.lovable/oauth/consent'
     | '/raids/$raidId'
-    | '/api/public/dev-demo-user'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,7 +141,6 @@ export interface FileRouteTypes {
     | '/raids'
     | '/.lovable/oauth/consent'
     | '/raids/$raidId'
-    | '/api/public/dev-demo-user'
   id:
     | '__root__'
     | '/'
@@ -165,7 +154,6 @@ export interface FileRouteTypes {
     | '/_authenticated/raids'
     | '/.lovable/oauth/consent'
     | '/_authenticated/raids/$raidId'
-    | '/api/public/dev-demo-user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -175,7 +163,6 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
-  ApiPublicDevDemoUserRoute: typeof ApiPublicDevDemoUserRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -257,13 +244,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRaidsRaidIdRouteImport
       parentRoute: typeof AuthenticatedRaidsRoute
     }
-    '/api/public/dev-demo-user': {
-      id: '/api/public/dev-demo-user'
-      path: '/api/public/dev-demo-user'
-      fullPath: '/api/public/dev-demo-user'
-      preLoaderRoute: typeof ApiPublicDevDemoUserRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -303,7 +283,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
-  ApiPublicDevDemoUserRoute: ApiPublicDevDemoUserRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
