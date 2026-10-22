@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               size="sm"
               onClick={async () => {
                 await supabase.auth.signOut();
-                navigate({ to: "/auth" });
+                navigate({ to: "/auth", search: { next: undefined } });
               }}
             >
               Sign out
